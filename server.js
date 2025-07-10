@@ -26,7 +26,7 @@ const RESERVED_WORDS = [
   "OUR", "TROOPS", "WINNIPEG", "THE", "UNIVERSITY", "OF", "DISCOVER", "ACHIEVE", 
   "BELONG", "GREY", "CUP", "CHAMPIONS", "BLUE", "BOMBERS", "GOLDEYES", "SHELTER", 
   "WELFARE", "DIGNITY", "HUMANE", "SOCIETY", "FULLED", "BY", "PASSION", "JETS", 
-  "HONOUR", "PAST"
+  "HONOUR", "PAST", "VETERAN"
 ];
 
 app.post("/api/detect-plate", async (req, res) => {
