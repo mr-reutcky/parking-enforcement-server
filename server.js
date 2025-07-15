@@ -8,7 +8,7 @@ const port = process.env.PORT || 8080;
 const permits = require("./permits.json");
 
 // Replace with your actual frontend domain
-const allowedOrigin = "https://mr-reutcky.github.io/parking-enforcement-app/";
+const allowedOrigin = "https://mr-reutcky.github.io";
 
 // Apply CORS policy
 app.use(cors({
