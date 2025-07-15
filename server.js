@@ -7,7 +7,22 @@ const app = express();
 const port = process.env.PORT || 8080;
 const permits = require("./permits.json");
 
-app.use(cors());
+// Replace with your actual frontend domain
+const allowedOrigin = "https://mr-reutcky.github.io/parking-enforcement-app/";
+
+// Apply CORS policy
+app.use(cors({
+  origin: allowedOrigin
+}));
+
+// Middleware: Custom header verification
+app.use((req, res, next) => {
+  if (req.headers["x-app-client"] !== "lpr-client") {
+    return res.status(403).json({ error: "Forbidden: Invalid client" });
+  }
+  next();
+});
+
 app.use(bodyParser.json({ limit: "10mb" }));
 
 AWS.config.update({
