@@ -498,5 +498,125 @@
     "color": "White",
     "permit_start": "2025-07-08T04:45",
     "permit_end": "2025-07-08T05:45"
+  },
+  {
+    "spot": 51,
+    "plate": "LGX 137",
+    "owner": "Samuel Reutcky",
+    "make": "Hyundai",
+    "model": "Elantra",
+    "color": "White",
+    "permit_start": "2025-07-08T00:15",
+    "permit_end": "2025-07-31T01:45"
+  },
+  {
+    "spot": 52,
+    "plate": "GMP 929",
+    "owner": "Jane Smith",
+    "make": "Honda",
+    "model": "3 Series",
+    "color": "Green",
+    "permit_start": "2025-06-21T00:30",
+    "permit_end": "2025-07-21T04:30"
+  },
+  {
+    "spot": 53,
+    "plate": "VAL 103",
+    "owner": "Owner 3",
+    "make": "Toyota",
+    "model": "Corolla",
+    "color": "Blue",
+    "permit_start": "2025-07-15T00:00",
+    "permit_end": "2025-08-15T00:00"
+  },
+  {
+    "spot": 54,
+    "plate": "VAL 104",
+    "owner": "Owner 4",
+    "make": "Toyota",
+    "model": "Corolla",
+    "color": "Blue",
+    "permit_start": "2025-07-15T00:00",
+    "permit_end": "2025-08-15T00:00"
+  },
+  {
+    "spot": 55,
+    "plate": "VAL 105",
+    "owner": "Owner 5",
+    "make": "Toyota",
+    "model": "Corolla",
+    "color": "Blue",
+    "permit_start": "2025-07-15T00:00",
+    "permit_end": "2025-08-15T00:00"
+  },
+  {
+    "spot": 56,
+    "plate": "VAL 106",
+    "owner": "Owner 6",
+    "make": "Toyota",
+    "model": "Corolla",
+    "color": "Blue",
+    "permit_start": "2025-07-15T00:00",
+    "permit_end": "2025-08-15T00:00"
+  },
+  {
+    "spot": 57,
+    "plate": "VAL 107",
+    "owner": "Owner 7",
+    "make": "Toyota",
+    "model": "Corolla",
+    "color": "Blue",
+    "permit_start": "2025-07-15T00:00",
+    "permit_end": "2025-08-15T00:00"
+  },
+  {
+    "spot": 58,
+    "plate": "VAL 108",
+    "owner": "Owner 8",
+    "make": "Toyota",
+    "model": "Corolla",
+    "color": "Blue",
+    "permit_start": "2025-07-15T00:00",
+    "permit_end": "2025-08-15T00:00"
+  },
+  {
+    "spot": 59,
+    "plate": "VAL 109",
+    "owner": "Owner 9",
+    "make": "Toyota",
+    "model": "Corolla",
+    "color": "Blue",
+    "permit_start": "2025-07-15T00:00",
+    "permit_end": "2025-08-15T00:00"
+  },
+  {
+    "spot": 60,
+    "plate": "VAL 110",
+    "owner": "Owner 10",
+    "make": "Toyota",
+    "model": "Corolla",
+    "color": "Blue",
+    "permit_start": "2025-07-15T00:00",
+    "permit_end": "2025-08-15T00:00"
+  },
+  {
+    "spot": 61,
+    "plate": "VAL 111",
+    "owner": "Owner 11",
+    "make": "Toyota",
+    "model": "Corolla",
+    "color": "Blue",
+    "permit_start": "2025-07-15T00:00",
+    "permit_end": "2025-08-15T00:00"
+  },
+  {
+    "spot": 12,
+    "plate": "VAL 112",
+    "owner": "Owner 12",
+    "make": "Toyota",
+    "model": "Corolla",
+    "color": "Blue",
+    "permit_start": "2025-07-15T00:00",
+    "permit_end": "2025-08-15T00:00"
   }
 ]
