@@ -87,7 +87,7 @@ app.post("/api/detect-plate", async (req, res) => {
 
       if (!plate) {
         const fallback = lines.find(line =>
-          /^[A-Z0-9]{3,8}$/.test(line) && !/^[0-9]{4}+$/.test(line) &&
+          /^[A-Z0-9]{3,8}$/.test(line) && !/^[0-9]{4}$/.test(line) &&
           !RESERVED_WORDS.includes(line.toUpperCase())
         );
         if (fallback) {
