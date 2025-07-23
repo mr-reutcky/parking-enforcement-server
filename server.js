@@ -57,43 +57,69 @@ app.post("/api/detect-plate", async (req, res) => {
     const data = await rekognition.detectText(params).promise();
     const detections = data.TextDetections || [];
 
+    const PLATE_REGEX_PATTERNS = [
+      /^[A-Z]{3} ?[0-9]{3}$/,            // ABC 123 or ABC123
+      /^[0-9]{3} ?[A-Z]{3}$/,            // 123 ABC
+      /^[A-Z]{2} ?[0-9]{3}[A-Z]?$/,      // CC 123A
+      /^[0-9][A-Z]{2}[~\-][0-9]{3}$/,    // 3MO~245 or 3M0-245
+      /^[A-Z][0-9][~\-]?[0-9]{4}$/,      // B6~1234 or B6-1234
+      /^[A-Z][0-9] ?[0-9]{4}$/,          // D8 5898, G9 1234
+      /^[A-Z]{2}[0-9]{3}[A-Z]$/,         // HC123A, MC123R
+      /^[0-9]{4} ?[0-9][A-Z]$/,          // 1234 2P, 1234 3U
+      /^[A-Z][0-9]{3}[A-Z]{2}$/,         // RL123R, S123AA, RV123S
+      /^[0-9]{3}[A-Z]{3}$/,              // 123VCL
+      /^[0-9]{4}[A-Z]{2}$/,              // 1234LT
+      /^[A-Z]{3}-[0-9]{3}$/,             // ABC-123
+      /^[0-9]{5}$/,                      // 12345
+      /^[A-Z]{2}-[0-9]{4}$/,             // CC-1234
+      /^[A-Z][0-9]{5}$/,                 // M12345, D12345, T1234
+      /^[0-9]-[A-Z]{2}[0-9]{3}$/,        // 0-AB123
+      /^[A-Z]{2}[0-9]{4}$/,              // FB1498, DC1234
+      /^[A-Z]{3}[0-9]$/,                 // VSK13
+      /^[A-Z][0-9]{5}$/,                 // J12345, H12345
+      /^[0-9]{5}[A-Z]$/,                 // 12345P
+      /^[A-Z]{2}[0-9]{4}$/,              // BK1234, WK1234, etc.
+      /^[A-Z]{2}[0-9]{6}$/,              // CL123455
+      /^[A-Z0-9]{6,8}$/,                 // fallback pattern (broad)
+    ];
+
     const lines = detections
       .filter(d =>
         d.Type === "LINE" &&
         d.DetectedText.length >= 3 &&
-        /^[A-Z0-9 ]+$/.test(d.DetectedText)
+        /^[A-Z0-9 ~\-]+$/.test(d.DetectedText)
       )
       .map(d => d.DetectedText.trim())
       .filter(text => !RESERVED_WORDS.includes(text.toUpperCase()));
 
     let plate = null;
 
-    const singleLineMatch = lines.find(line =>
-      /^[A-Z0-9]{3} [A-Z0-9]{3}$/.test(line)
-    );
+    // Try known plate patterns
+    for (const line of lines) {
+      const cleaned = line.replace(/\s+/g, " ").toUpperCase();
+      if (PLATE_REGEX_PATTERNS.some(regex => regex.test(cleaned))) {
+        plate = cleaned;
+        break;
+      }
+    }
 
-    if (singleLineMatch) {
-      plate = singleLineMatch;
-    } else {
+    // Fallback: try combining two short adjacent lines
+    if (!plate) {
       for (let i = 0; i < lines.length - 1; i++) {
-        if (
-          /^[A-Z0-9]{2,4}$/.test(lines[i]) &&
-          /^[A-Z0-9]{2,4}$/.test(lines[i + 1])
-        ) {
-          plate = `${lines[i]} ${lines[i + 1]}`;
+        const combo = `${lines[i]} ${lines[i + 1]}`.replace(/\s+/g, " ").toUpperCase();
+        if (PLATE_REGEX_PATTERNS.some(regex => regex.test(combo))) {
+          plate = combo;
           break;
         }
       }
+    }
 
-      if (!plate) {
-        const fallback = lines.find(line =>
-          /^[A-Z0-9]{3,8}$/.test(line) && !/^[0-9]{4}$/.test(line) &&
-          !RESERVED_WORDS.includes(line.toUpperCase())
-        );
-        if (fallback) {
-          plate = fallback;
-        }
-      }
+    // Last fallback: single block of 5–8 chars (alphanumeric)
+    if (!plate) {
+      plate = lines.find(line =>
+        /^[A-Z0-9]{5,8}$/.test(line.replace(/\s+/g, "")) &&
+        !/^[0-9]{4}$/.test(line)
+      );
     }
 
     if (!plate) {
