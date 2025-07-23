@@ -40,7 +40,8 @@ const RESERVED_WORDS = [
   "OUR", "TROOPS", "WINNIPEG", "THE", "UNIVERSITY", "OF", "DISCOVER", "ACHIEVE",
   "BELONG", "GREY", "CUP", "CHAMPIONS", "BLUE", "BOMBERS", "GOLDEYES", "SHELTER",
   "WELFARE", "DIGNITY", "HUMANE", "SOCIETY", "FULLED", "BY", "PASSION", "JETS",
-  "HONOUR", "PAST", "VETERAN"
+  "HONOUR", "PAST", "VETERAN", "SASKCTCHEWAN", "LAND", "OF", "LIVING", "SKIES",
+  "RIDER", "NATION", "PRIDE", "LIVES", "HERE", "MEMORIAL", "CROSS", "COLLECTOR"
 ];
 
 // POST /api/detect-plate
@@ -80,7 +81,7 @@ app.post("/api/detect-plate", async (req, res) => {
       /^[0-9]{5}[A-Z]$/,                 // 12345P
       /^[A-Z]{2}[0-9]{4}$/,              // BK1234, WK1234, etc.
       /^[A-Z]{2}[0-9]{6}$/,              // CL123455
-      /^[A-Z0-9]{6,8}$/,                 // fallback pattern (broad)
+      /^[A-Z0-9]{3,8}$/,                 // fallback pattern (broad)
     ];
 
     const lines = detections
