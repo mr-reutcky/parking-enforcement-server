@@ -190,6 +190,12 @@ app.get("/", (req, res) => {
 });
 
 // Start server
-app.listen(port, () => {
-  console.log(`Server running at https://parking-enforcement-server.onrender.com:${port}`);
-});
+// Add at the very end of server.js
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`Server running at https://parking-enforcement-server.onrender.com:${port}`);
+  });
+} else {
+  module.exports = app;
+}
+
