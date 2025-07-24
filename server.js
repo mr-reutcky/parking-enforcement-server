@@ -115,10 +115,10 @@ app.post("/api/detect-plate", async (req, res) => {
       }
     }
 
-    // Last fallback: single block of 5–8 chars (alphanumeric)
+    // Last fallback: single block of 3–8 chars (alphanumeric)
     if (!plate) {
       plate = lines.find(line =>
-        /^[A-Z0-9]{5,8}$/.test(line.replace(/\s+/g, "")) &&
+        /^[A-Z0-9]{3,8}$/.test(line.replace(/\s+/g, "")) &&
         !/^[0-9]{4}$/.test(line)
       );
     }
