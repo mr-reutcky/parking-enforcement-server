@@ -11,13 +11,17 @@ const port = process.env.PORT || 8080;
 const permits = require("./permits.json");
 
 // Replace with your actual frontend domain
-const allowedOrigin = "https://mr-reutcky.github.io";
+const allowedOrigin = ["https://mr-reutcky.github.io", "https://localhost:8080", "http://localhost:3000"];
 
 // Apply CORS policy
 app.use(cors({ origin: allowedOrigin }));
 
 // Middleware: Custom header verification
+// Custom header verification (skip for Swagger docs)
 app.use((req, res, next) => {
+  const isSwaggerRoute = req.path.startsWith("/api-docs");
+  if (isSwaggerRoute) return next();
+
   if (req.headers["x-app-client"] !== "lpr-client") {
     return res.status(403).json({ error: "Forbidden: Invalid client" });
   }
@@ -55,13 +59,40 @@ const RESERVED_WORDS = [
  *     summary: Get all mock parking permits
  *     responses:
  *       200:
- *         description: List of permits
+ *         description: List of permit objects
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
  *                 type: object
+ *                 properties:
+ *                   spot:
+ *                     type: integer
+ *                     example: 1
+ *                   plate:
+ *                     type: string
+ *                     example: LGX 137
+ *                   owner:
+ *                     type: string
+ *                     example: Samuel Reutcky
+ *                   make:
+ *                     type: string
+ *                     example: Hyundai
+ *                   model:
+ *                     type: string
+ *                     example: Elantra
+ *                   color:
+ *                     type: string
+ *                     example: White
+ *                   permit_start:
+ *                     type: string
+ *                     format: date-time
+ *                     example: 2025-07-08T00:15
+ *                   permit_end:
+ *                     type: string
+ *                     format: date-time
+ *                     example: 2025-07-31T01:45
  */
 app.get("/api/permits", (req, res) => {
   res.json(permits);
@@ -81,9 +112,49 @@ app.get("/api/permits", (req, res) => {
  *             properties:
  *               plate:
  *                 type: string
- *     responses:
- *       200:
- *         description: Plate validation result
+ *    responses:
+ *      200:
+ *        description: Plate validation result
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                plate:
+ *                  type: string
+ *                  example: LGX 137
+ *                isAuthorized:
+ *                  type: boolean
+ *                  example: true
+ *                permit:
+ *                  type: object
+ *                  properties:
+ *                    spot:
+ *                      type: integer
+ *                      example: 1
+ *                    plate:
+ *                      type: string
+ *                      example: LGX 137
+ *                owner:
+ *                  type: string
+ *                  example: Samuel Reutcky
+ *                make:
+ *                  type: string
+ *                  example: Hyundai
+ *                model:
+ *                  type: string
+ *                  example: Elantra
+ *                color:
+ *                  type: string
+ *                  example: White
+ *                permit_start:
+ *                  type: string
+ *                  format: date-time
+ *                  example: 2025-07-08T00:15
+ *                permit_end:
+ *                  type: string
+ *                  format: date-time
+ *                  example: 2025-07-31T01:45
  */
 app.post("/api/lookup-plate", (req, res) => {
   const inputPlate = req.body.plate;
@@ -162,7 +233,7 @@ app.post("/api/detect-plate", async (req, res) => {
       /^[A-Z]{2}[0-9]{6}$/,              // CL123455
       /^[A-Z0-9]{3,8}$/,                 // fallback pattern (broad)
     ];
-    
+
     const lines = detections
       .filter(d =>
         d.Type === "LINE" &&
