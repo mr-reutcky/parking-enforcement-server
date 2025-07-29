@@ -3,6 +3,9 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const AWS = require("aws-sdk");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./swagger");
+
 const app = express();
 const port = process.env.PORT || 8080;
 const permits = require("./permits.json");
@@ -11,9 +14,7 @@ const permits = require("./permits.json");
 const allowedOrigin = "https://mr-reutcky.github.io";
 
 // Apply CORS policy
-app.use(cors({
-  origin: allowedOrigin
-}));
+app.use(cors({ origin: allowedOrigin }));
 
 // Middleware: Custom header verification
 app.use((req, res, next) => {
@@ -24,6 +25,9 @@ app.use((req, res, next) => {
 });
 
 app.use(bodyParser.json({ limit: "10mb" }));
+
+// Serve Swagger API Docs
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 AWS.config.update({
   region: process.env.AWS_REGION,
@@ -44,7 +48,82 @@ const RESERVED_WORDS = [
   "RIDER", "NATION", "PRIDE", "LIVES", "HERE", "MEMORIAL", "CROSS", "COLLECTOR"
 ];
 
-// POST /api/detect-plate
+/**
+ * @swagger
+ * /api/permits:
+ *   get:
+ *     summary: Get all mock parking permits
+ *     responses:
+ *       200:
+ *         description: List of permits
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ */
+app.get("/api/permits", (req, res) => {
+  res.json(permits);
+});
+
+/**
+ * @swagger
+ * /api/lookup-plate:
+ *   post:
+ *     summary: Check if a license plate has a valid permit
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               plate:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Plate validation result
+ */
+app.post("/api/lookup-plate", (req, res) => {
+  const inputPlate = req.body.plate;
+  if (!inputPlate || typeof inputPlate !== "string") {
+    return res.status(400).json({ error: "A valid plate string must be provided." });
+  }
+
+  const permit = permits.find(p => p.plate.toUpperCase() === inputPlate.toUpperCase());
+
+  if (!permit) {
+    return res.json({ plate: inputPlate, isAuthorized: false, permit: null });
+  }
+
+  const now = new Date();
+  const start = new Date(permit.permit_start);
+  const end = new Date(permit.permit_end);
+  const isAuthorized = now >= start && now <= end;
+
+  res.json({ plate: permit.plate, isAuthorized, permit });
+});
+
+/**
+ * @swagger
+ * /api/detect-plate:
+ *   post:
+ *     summary: Detect a license plate from an image and check authorization
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: base64
+ *     responses:
+ *       200:
+ *         description: Plate detection result
+ */
 app.post("/api/detect-plate", async (req, res) => {
   const base64Image = req.body.image?.split(",")[1];
   if (!base64Image) {
@@ -83,7 +162,7 @@ app.post("/api/detect-plate", async (req, res) => {
       /^[A-Z]{2}[0-9]{6}$/,              // CL123455
       /^[A-Z0-9]{3,8}$/,                 // fallback pattern (broad)
     ];
-
+    
     const lines = detections
       .filter(d =>
         d.Type === "LINE" &&
@@ -95,7 +174,6 @@ app.post("/api/detect-plate", async (req, res) => {
 
     let plate = null;
 
-    // Try known plate patterns
     for (const line of lines) {
       const cleaned = line.replace(/\s+/g, " ").toUpperCase();
       if (PLATE_REGEX_PATTERNS.some(regex => regex.test(cleaned))) {
@@ -104,7 +182,6 @@ app.post("/api/detect-plate", async (req, res) => {
       }
     }
 
-    // Fallback: try combining two short adjacent lines
     if (!plate) {
       for (let i = 0; i < lines.length - 1; i++) {
         const combo = `${lines[i]} ${lines[i + 1]}`.replace(/\s+/g, " ").toUpperCase();
@@ -115,7 +192,6 @@ app.post("/api/detect-plate", async (req, res) => {
       }
     }
 
-    // Last fallback: single block of 3–8 chars (alphanumeric)
     if (!plate) {
       plate = lines.find(line =>
         /^[A-Z0-9]{3,8}$/.test(line.replace(/\s+/g, "")) &&
@@ -138,59 +214,27 @@ app.post("/api/detect-plate", async (req, res) => {
     const end = new Date(permit.permit_end);
     const isAuthorized = now >= start && now <= end;
 
-    res.json({
-      plate,
-      isAuthorized,
-      permit: {
-        ...permit
-      }
-    });
+    res.json({ plate, isAuthorized, permit });
   } catch (err) {
     console.error("Rekognition error:", err);
     res.status(500).json({ error: "Failed to process image." });
   }
 });
 
-// POST /api/lookup-plate
-app.post("/api/lookup-plate", (req, res) => {
-  const inputPlate = req.body.plate;
-
-  if (!inputPlate || typeof inputPlate !== "string") {
-    return res.status(400).json({ error: "A valid plate string must be provided." });
-  }
-
-  const permit = permits.find(p => p.plate.toUpperCase() === inputPlate.toUpperCase());
-
-  if (!permit) {
-    return res.json({ plate: inputPlate, isAuthorized: false, permit: null });
-  }
-
-  const now = new Date();
-  const start = new Date(permit.permit_start);
-  const end = new Date(permit.permit_end);
-  const isAuthorized = now >= start && now <= end;
-
-  res.json({
-    plate: permit.plate,
-    isAuthorized,
-    permit: {
-      ...permit
-    }
-  });
-});
-
-// GET /api/permits
-app.get("/api/permits", (req, res) => {
-  res.json(permits);
-});
-
-// Root
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: Health check
+ *     responses:
+ *       200:
+ *         description: API is running
+ */
 app.get("/", (req, res) => {
   res.send("License Plate API is running.");
 });
 
 // Start server
-// Add at the very end of server.js
 if (require.main === module) {
   app.listen(port, () => {
     console.log(`Server running at https://parking-enforcement-server.onrender.com:${port}`);
@@ -198,4 +242,3 @@ if (require.main === module) {
 } else {
   module.exports = app;
 }
-
