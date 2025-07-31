@@ -112,49 +112,50 @@ app.get("/api/permits", (req, res) => {
  *             properties:
  *               plate:
  *                 type: string
- *    responses:
- *      200:
- *        description: Plate validation result
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
- *                plate:
- *                  type: string
- *                  example: LGX 137
- *                isAuthorized:
- *                  type: boolean
- *                  example: true
- *                permit:
- *                  type: object
- *                  properties:
- *                    spot:
- *                      type: integer
- *                      example: 1
- *                    plate:
- *                      type: string
- *                      example: LGX 137
- *                owner:
- *                  type: string
- *                  example: Samuel Reutcky
- *                make:
- *                  type: string
- *                  example: Hyundai
- *                model:
- *                  type: string
- *                  example: Elantra
- *                color:
- *                  type: string
- *                  example: White
- *                permit_start:
- *                  type: string
- *                  format: date-time
- *                  example: 2025-07-08T00:15
- *                permit_end:
- *                  type: string
- *                  format: date-time
- *                  example: 2025-07-31T01:45
+ *                 example: LGX 137
+ *     responses:
+ *       200:
+ *         description: Plate validation result
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 plate:
+ *                   type: string
+ *                   example: LGX 137
+ *                 isAuthorized:
+ *                   type: boolean
+ *                   example: true
+ *                 permit:
+ *                   type: object
+ *                   properties:
+ *                     spot:
+ *                       type: integer
+ *                       example: 1
+ *                     plate:
+ *                       type: string
+ *                       example: LGX 137
+ *                     owner:
+ *                       type: string
+ *                       example: Samuel Reutcky
+ *                     make:
+ *                       type: string
+ *                       example: Hyundai
+ *                     model:
+ *                       type: string
+ *                       example: Elantra
+ *                     color:
+ *                       type: string
+ *                       example: White
+ *                     permit_start:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-07-08T00:15
+ *                     permit_end:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-07-31T01:45
  */
 app.post("/api/lookup-plate", (req, res) => {
   const inputPlate = req.body.plate;
